@@ -1,9 +1,13 @@
 package com.example.rxjavapractice
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.CompletableEmitter
 import io.reactivex.rxjava3.core.Flowable
 import util.RestUtil
+import util.RestUtil.getWeather
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,13 +17,24 @@ class MainActivity : AppCompatActivity() {
         Flowable.just("Hello RxJava").subscribe(System.out::println)
 
         System.out.println("=============== main start ===============")
-        var tokyoWeather = RestUtil.getWeather(RestUtil.Place.TOKYO)
-        var yokohamaWeather = RestUtil.getWeather(RestUtil.Place.YOKOHAMA)
-        var nagoyaWeather = RestUtil.getWeather(RestUtil.Place.NAGOYA)
 
-        System.out.println(tokyoWeather)
-        System.out.println(yokohamaWeather)
-        System.out.println(nagoyaWeather)
+        Completable.create { emitter: CompletableEmitter ->
+
+            val tokyoWeather = getWeather(RestUtil.Place.TOKYO)
+            val yokohamaWeather = getWeather(RestUtil.Place.YOKOHAMA)
+            val nagoyaWeather = getWeather(RestUtil.Place.NAGOYA)
+
+            println(tokyoWeather)
+            println(yokohamaWeather)
+            println(nagoyaWeather)
+
+            emitter.onComplete()
+        }.subscribe({
+            println("Complete!!")
+        }) { throwable: Throwable ->
+            println("Error!!")
+            throwable.printStackTrace()
+        }
 
         System.out.println("=============== main end ===============")
     }
